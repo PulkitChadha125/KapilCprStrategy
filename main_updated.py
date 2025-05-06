@@ -348,21 +348,25 @@ def main_strategy():
         
         # Process each symbol from TradeSettings.csv
         for symbol, params in result_dict.items():
-            # initialize loop-specific variables to avoid UnboundLocalError
-            symbol_name = params.get("Symbol")
-            last_close = None
-            fetch_duration = 0.0
+        fetch_ohlc_start_time = time.time()  # ⏱ Track full OHLC fetch loop start
+            symbol_name = params['Symbol']
+            timeframe = params['Timeframe']
+            NSEFOinstrument_id = params['NSEFOexchangeInstrumentID']
+            NSECMinstrument_id = params['NSECMexchangeInstrumentID']
             
+            print(f"\nProcessing {symbol_name} (Timeframe: {timeframe} )")
+            
+             # Skip if outside time window
             if not (params["StartTime"] <= now_time <= params["StopTime"]):
                 continue
 
             if params.get("PrevOpen") is None:
                 try:
-                    o, h, l, c = get_previous_day_ohlc(symbol_name, params["NSECMexchangeInstrumentID"])
+                    o, h, l, c = get_previous_day_ohlc(symbol_name, NSECMinstrument_id)
                     if None in (o, h, l, c):
                         print(f"[WARN] Incomplete OHLC data for {symbol_name}. Retrying in 1 second...")
                         time.sleep(1)
-                        o, h, l, c = get_previous_day_ohlc(symbol_name, params["NSECMexchangeInstrumentID"])
+                        o, h, l, c = get_previous_day_ohlc(symbol_name, NSECMinstrument_id)
 
                         if None in (o, h, l, c):
                             print(f"[ERROR] OHLC data still missing for {symbol_name}. Skipping...")
@@ -378,7 +382,7 @@ def main_strategy():
 
                     # Calculated values
                     close = c
-                    allowed_diff = close * params["PercentagePrice"] / 100
+                    allowed_diff = close * result_dict[symbol]["PercentagePrice"] / 100
                     pivot = (h + l + c) / 3
                     top = (h + l) / 2
                     bottom = (pivot - top) + pivot
@@ -425,71 +429,68 @@ def main_strategy():
             if params.get("TakeTrade") != True:
                 continue    
 
-            
+            timeframe = int(params.get("Timeframe", 180))
+            last_fetch_start = params.get("last_ohlc_fetch_start_time", 0)
 
 # Run only if the current time has crossed the next scheduled fetch time
            
-            if params.get("last_run_time") is None or datetime.datetime.now() >= params["last_run_time"]:
-                try:
-                    symbol_name = params["Symbol"]
-                    NSECMinstrument_id = params["NSECMexchangeInstrumentID"]
-                    timeframe = params["Timeframe"]
-                    # result_dict[symbol]["last_run_time"] = now
-                    # Fetch historical data
-                    if params["TakeTrade"] == True:
-                        ohlc_data = fetch_historical_ohlc(
-                                xts_marketdata=xts_marketdata,
-                            exchangeSegment="NSECM",
-                        exchangeInstrumentID=NSECMinstrument_id,
-                        startTime=start_time_str,
-                        endTime=end_time_str,
-                        compressionValue=timeframe
-                        )
 
-                        
-                    
+            try:
+                symbol_name = params["Symbol"]
+                NSECMinstrument_id = params["NSECMexchangeInstrumentID"]
+                timeframe = params["Timeframe"]
+                # result_dict[symbol]["last_run_time"] = now
+                # Fetch historical data
+                if params["TakeTrade"] == True:
+                    ohlc_data = fetch_historical_ohlc(
+                            xts_marketdata=xts_marketdata,
+                        exchangeSegment="NSECM",
+                    exchangeInstrumentID=NSECMinstrument_id,
+                    startTime=start_time_str,
+                    endTime=end_time_str,
+                    compressionValue=timeframe
+                    )
 
-                except Exception as e:
-                    print(f"Error fetching OHLC data for {symbol_name}: {str(e)}")
-                    traceback.print_exc()
-                    continue
-                    
-                if ohlc_data is not None and not ohlc_data.empty:
-                    print(f"Successfully fetched OHLC data for {symbol_name}:")
-                    # print("ohlc_data: ", ohlc_data)
-                    
-                else:
-                    print(f"Failed to fetch data for {symbol_name}")
+                    fetch_end = time.time()
+                    fetch_duration = fetch_end - fetch_start
+                  
 
-                ohlc_data.columns = [col.lower() for col in ohlc_data.columns]
-                    # Convert pandas OHLC to polars
-                pl_df = pl.from_pandas(ohlc_data)
-
-                    # Calculate EMA using values from settings (MA1 and MA2)
-                pl_df = pl_df.with_columns([
-                        pl.col("close").ta.ema(int(params["MA1"])).alias(f"ema_{params['MA1']}"),
-                        pl.col("close").ta.ema(int(params["MA2"])).alias(f"ema_{params['MA2']}"),
-                        pl.col("close").ta.rsi(int(params["RSI_Period"])).alias("rsi_14")
-                    ])
-                
-                    # Save last EMA values into result_dict
-                result_dict[symbol]["ma1Val"] = pl_df.select(f"ema_{params['MA1']}")[-1, 0]
-                result_dict[symbol]["ma2Val"] = pl_df.select(f"ema_{params['MA2']}")[-1, 0]
-                result_dict[symbol]["RsiVal"] = pl_df.select("rsi_14")[-1, 0]
-                last_close = pl_df.select("close")[-2, 0]
-                    # Show first few rows
-                fetch_end = time.time()
-                fetch_duration = fetch_end - fetch_start
-                params["last_run_time"] = datetime.datetime.now() + datetime.timedelta(seconds=(params["Timeframe"] - (fetch_end - fetch_start)))
-                # print fetch timing and last close right after fetch
-                print(f"Symbol: {symbol_name}, Next run time: {params['last_run_time']}, Total Time taken by api to fetch data: {fetch_duration:.2f} seconds")
-                print(f"last_close: {last_close}")
-            
-            else:
+            except Exception as e:
+                print(f"Error fetching OHLC data for {symbol_name}: {str(e)}")
+                traceback.print_exc()
                 continue
+                
+            if ohlc_data is not None and not ohlc_data.empty:
+                print(f"Successfully fetched OHLC data for {symbol_name}:")
+                # print("ohlc_data: ", ohlc_data)
+                
+            else:
+                print(f"Failed to fetch data for {symbol_name}")
 
-            # Get required values
-            # ✅ Last candle close
+            ohlc_data.columns = [col.lower() for col in ohlc_data.columns]
+                # Convert pandas OHLC to polars
+            pl_df = pl.from_pandas(ohlc_data)
+
+                # Calculate EMA using values from settings (MA1 and MA2)
+            pl_df = pl_df.with_columns([
+                    pl.col("close").ta.ema(int(params["MA1"])).alias(f"ema_{params['MA1']}"),
+                    pl.col("close").ta.ema(int(params["MA2"])).alias(f"ema_{params['MA2']}"),
+                    pl.col("close").ta.rsi(int(params["RSI_Period"])).alias("rsi_14")
+                ])
+            
+            print(f"[⏱] OHLC data fetched for {symbol_name} in {fetch_duration:.2f} seconds")
+            result_dict[symbol]["last_ohlc_fetch_start_time"] = fetch_end + (timeframe - fetch_duration)
+
+                # Save last EMA values into result_dict
+            result_dict[symbol]["ma1Val"] = pl_df.select(f"ema_{params['MA1']}")[-1, 0]
+            result_dict[symbol]["ma2Val"] = pl_df.select(f"ema_{params['MA2']}")[-1, 0]
+            result_dict[symbol]["RsiVal"] = pl_df.select("rsi_14")[-1, 0]
+                # Show first few rows
+        
+                
+                # Get required values
+            last_close = pl_df.select("close")[-2, 0]  # ✅ Last candle close
+            print(f"last_close: {last_close}")
             ema1 = result_dict[symbol]["ma1Val"]       # ✅ EMA1 value
             ema2 = result_dict[symbol]["ma2Val"]       # ✅ EMA2 value
             rsi_val = result_dict[symbol]["RsiVal"]
@@ -500,19 +501,12 @@ def main_strategy():
             s1 = result_dict[symbol]["S1"]
             s2 = result_dict[symbol]["S2"]
 
-            target_buffer = params["TargetBuffer"] 
+            target_buffer = result_dict[symbol]["TargetBuffer"] 
             buytargetvalue = r2 * target_buffer*0.01 
             buytargetvalue = r2-buytargetvalue
 
             selltargetvalue = s2 * target_buffer*0.01 
             selltargetvalue = s2+selltargetvalue
-
-
-            print(f"symbol_name: {symbol_name}, ema1: {ema1}, ema2: {ema2}, rsi_val: {rsi_val}, "
-                    f"prev_high: {prev_high}, prev_low: {prev_low}, r1: {r1}, r2: {r2}, "
-                    f"s1: {s1}, s2: {s2}, target_buffer: {target_buffer}, "
-                    f"buytargetvalue: {buytargetvalue}, selltargetvalue: {selltargetvalue}")
-
 
                 # Target
             if params["ltp"] is not None and params['ltp']>=buytargetvalue and result_dict[symbol]["TargetExecuted"] == None:
@@ -609,6 +603,10 @@ def main_strategy():
                 # print(f"ltp {symbol_name}: ", ltp)
             
             # print("result_dict: ", result_dict)
+        fetch_ohlc_end_time = time.time()
+        fetch_total_duration = fetch_ohlc_end_time - fetch_ohlc_start_time
+        global NEXT_FETCH_TIME
+        NEXT_FETCH_TIME = time.time() + max(0, RUN_INTERVAL_SECONDS - fetch_total_duration)
         if not allowed_trades_saved:
             allowed_trades = []
 
