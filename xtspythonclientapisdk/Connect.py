@@ -142,6 +142,7 @@ class XTSConnect(XTSCommon):
                  apiKey,
                  secretKey,
                  source,
+                 accessToken,
                  root=None,
                  debug=False,
                  timeout=None,
@@ -168,6 +169,7 @@ class XTSConnect(XTSCommon):
         self.debug = debug
         self.apiKey = apiKey
         self.secretKey = secretKey
+        self.accessToken = accessToken
         self.source = source
         self.disable_ssl = disable_ssl
         self.root = root or self._default_root_uri
@@ -202,7 +204,7 @@ class XTSConnect(XTSCommon):
                 "appKey": self.apiKey,
                 "secretKey": self.secretKey,
                 "source": self.source,
-                "accessToken":self.access_token
+                "accessToken":self.accessToken
             }
             response = self._post("user.login", params)
 

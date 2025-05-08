@@ -1,0 +1,39 @@
+Broker Order Response: [2025-05-08 11:51:01.872531]  SELL quantity: 1400 price: 631 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807905, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 11:51:01.872902] SELL @ HINDALCO  628.8
+Broker Order Response: [2025-05-08 11:51:02.891524]  BUY quantity: 350 price: 1596 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807906, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 11:51:02.891873] BUY @ HCLTECH  1589.5
+Broker Order Response: [2025-05-08 11:51:03.716073]  BUY quantity: 700 price: 1447 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807907, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 11:51:03.717311] BUY @ ICICIBANK  1444.8
+Broker Order Response: [2025-05-08 11:51:05.027745]  BUY quantity: 625 price: 1175 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807908, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 11:51:05.028240] BUY @ AXISBANK  1172.6
+Broker Order Response: [2025-05-08 11:51:05.857601]  SELL quantity: 125 price: 6919 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807909, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 11:51:05.858152] SELL @ APOLLOHOSP  6896.5
+Broker Order Response: [2025-05-08 11:51:06.671965]  BUY quantity: 600 price: 1518 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807910, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 11:51:06.744961] BUY @ TECHM  1515.1
+Broker Order Response: [2025-05-08 11:51:08.351260]  SELL quantity: 325 price: 1493 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807911, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 11:51:08.352855] SELL @ CIPLA  1487.0
+Broker Order Response: [2025-05-08 11:51:09.542525]  BUY quantity: 150 price: 4059 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807912, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 11:51:09.543141] BUY @ DMART  4047.9
+Broker Order Response: [2025-05-08 11:54:03.746960]  BUY quantity: 4825 price: 111 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807913, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 11:54:03.747814] BUY @ BANKINDIA  111.49
+Broker Order Response: [2025-05-08 12:06:14.835852]  SELL quantity: 300 price: 2365 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807922, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 12:06:14.836471] SELL @ HINDUNILVR  2354.3
+Broker Order Response: [2025-05-08 12:06:15.566589]  BUY quantity: 150 price: 3395 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807923, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 12:06:15.567085] BUY @ KEI  3391.6
+Broker Order Response: [2025-05-08 12:06:16.490742]  BUY quantity: 367 price: 1317 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807924, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 12:06:16.491818] BUY @ ASTRAL  1312.9
+Broker Order Response: [2025-05-08 12:09:12.250272]  SELL quantity: 1700 price: 603 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807925, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 12:09:12.251081] SELL @ LAURUSLABS  602.15
+Broker Order Response: [2025-05-08 12:09:17.066019]  BUY quantity: 150 price: 3364 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807926, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 12:09:17.066706] BUY @ LT  3349.6
+Broker Order Response: [2025-05-08 12:24:24.353637]  SELL quantity: 100 price: 4974 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807931, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
+[2025-05-08 12:24:24.354590] SELL @ ALKEM  4973.5
+[2025-05-08 12:32:57.262420] SELL @ LAURUSLABS  601.95
+[2025-05-08 12:32:57.680975] SELL @ HINDALCO  625.5
+[2025-05-08 12:32:58.436982] BUY @ HCLTECH  1592.3
+[2025-05-08 12:32:59.015682] BUY @ ICICIBANK  1445.6
+[2025-05-08 12:33:00.518760] BUY @ BANKINDIA  111.54
+[2025-05-08 12:33:01.106132] BUY @ AXISBANK  1174.5
+[2025-05-08 12:33:01.695344] SELL @ APOLLOHOSP  6902.0
+[2025-05-08 12:33:01.905186] BUY @ LT  3355.1
+[2025-05-08 12:33:03.650176] SELL @ CIPLA  1481.1
