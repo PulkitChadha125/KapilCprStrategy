@@ -18,7 +18,6 @@ xt=None
 
 
 
-
 def interactivelogin():
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
@@ -631,14 +630,17 @@ def main_strategy():
                     Sell Target Value: {selltargetvalue}
                     Last Close: {params["last_close"]}
                     LTP: {params['ltp']}
+                    TargetExecuted: {params["TargetExecuted"]}
+                    Trade: {params["Trade"]}
+                    TakeTrade: {params["TakeTrade"]}
                     """)
             print("-" * 50)  # dashed line separator
 
 
                 # Target
-            if( params["ltp"] is not None and 
-               (params['ltp']>=buytargetvalue or params["last_close"]>=buytargetvalue ) and 
-               params["TargetExecuted"] == None):
+            if(params["ltp"] is not None and 
+                    (params['ltp']>=buytargetvalue or params["last_close"]>=buytargetvalue ) and 
+                    params["TargetExecuted"] == False):
                 print(f"[{params['Symbol']}] price reached buytargetvalue {buytargetvalue}")
                 params["TargetExecuted"] = True
                 write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} buytargetvalue REACHED close: {params["last_close"]}, buytargetvalue: {buytargetvalue}")
@@ -649,8 +651,8 @@ def main_strategy():
                     write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY TARGET REACHED clos: {params["last_close"]}, buytargetvalue: {buytargetvalue}")
 
             if (params["ltp"] is not None and
-            (params['ltp']<=selltargetvalue or params["last_close"]<=selltargetvalue) and 
-            params["TargetExecuted"] == None):
+                    (params['ltp']<=selltargetvalue or params["last_close"]<=selltargetvalue) and 
+                    params["TargetExecuted"] == False):
                 print(f"[{params['Symbol']}] price reached selltargetvalue")
                 params["TargetExecuted"] = True
                 write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} selltargetvalue REACHED close: {params["last_close"]}, selltargetvalue: {selltargetvalue}")
@@ -663,13 +665,16 @@ def main_strategy():
                 
                 
                 
-            if params["TargetExecuted"] == False:
+            if params["TargetExecuted"] == False and params["Trade"] == None:
+                print(f"{datetime.datetime.now()} [{params['Symbol']}] Checking entry condition.. ")
                     #  buy condition
                 if (params["TakeTrade"] == True and params["last_close"] > ema1 and
                     params["last_close"] > ema2 and params["last_close"] > r1 and
                     params["last_close"]>prev_high and ema1>ema2) and params["Trade"] == None:
+                    
                     print(f"[{params['Symbol']}] Buy condition met")
                     params["Trade"] = "BUY"
+                    print(f"[{params['Symbol']}] BUY @ {params['Symbol']}  {params["last_close"]}")
                     # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["ltp"],unique_key="1234")
                     write_to_order_logs(f"[{datetime.datetime.now()}] BUY @ {params['Symbol']}  {params["last_close"]}")
 
@@ -682,53 +687,67 @@ def main_strategy():
                     write_to_order_logs(f"[{datetime.datetime.now()}] SELL @ {params['Symbol']}  {params["last_close"]}")
 
                 # REENTRY TRIGGERED LOGIC
-            if params["Trade"] == "BUYSTOPLOSS":
+            if params["Trade"] == "REENTERYCHECKED":
+                print(f"[{params['Symbol']}] REENTRY TRIGGERED LOGIC completed")
+
                 if (params["TakeTrade"] == True and params["last_close"] > ema1 and params["last_close"] > ema2 and
                     params["last_close"] > r1 and params["last_close"]>prev_high and ema1>ema2) :
                         print(f"[{params['Symbol']}] Buy re-entry condition met")
                         params["Trade"] = "BUY"
+                        print(f"[{params['Symbol']}] BUY re-entry condition met")
                         # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["ltp"],unique_key="1234")
                         write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY re-entry {params['last_close']}")
                     
-                if params["Trade"] == "SELLSTOPLOSS":
+                if params["Trade"] == "REENTERYCHECKED":
                     if (params["TakeTrade"] == True and params["last_close"] < ema1 and params["last_close"] < ema2 and
                         params["last_close"] < s1 and params["last_close"]<prev_low and ema1<ema2) :
                         print(f"[{params['Symbol']}] Sell re-entry condition met")
                         params["Trade"] = "SELL"
+                        print(f"[{params['Symbol']}] SELL re-entry condition met")
                         # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",price=params["ltp"],unique_key="1234")
                         write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} SELL re-entry {params["last_close"]}")
 
 
                     # Stoploss  
-                if params["Trade"] == "BUY":
-                    if params["last_close"] < ema1 and rsi_val <= params["RSI_Buy"]:
-                        print(f"[{params['Symbol']}]Buy Stoploss executed")
-                        params["Trade"] = "BUYSTOPLOSS"
-                        # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",
-                        #             price=params["ltp"],unique_key="1234")  
-                        write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY Stoploss {params["last_close"]}")
+            if params["Trade"] == "BUY":
+                print(f"[{params['Symbol']}] Stoploss  LOGIC checking for BUY")
+
+                if params["last_close"] < ema1 and rsi_val <= params["RSI_Buy"]:
+                    print(f"[{params['Symbol']}]Buy Stoploss executed")
+                    params["Trade"] = "BUYSTOPLOSS"
+                    print(f"[{params['Symbol']}] BUY Stoploss executed")    
+                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",
+                    #             price=params["ltp"],unique_key="1234")  
+                    write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY Stoploss {params["last_close"]}")
 
 
-                if params["Trade"] == "SELL":
-                    if params["last_close"] > ema1 and rsi_val >= params["RSI_Sell"]:
-                        print(f"[{params['Symbol']}]Sell Stoploss executed")
-                        params["Trade"] = "SELLSTOPLOSS"
-                        # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["ltp"],unique_key="1234")
-                        write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} SELL Stoploss {params["last_close"]}")
+            if params["Trade"] == "SELL":
+                print(f"[{params['Symbol']}] Stoploss  LOGIC checking for SELL")
+                if params["last_close"] > ema1 and rsi_val >= params["RSI_Sell"]:
+                    print(f"[{params['Symbol']}]Sell Stoploss executed")
+                    params["Trade"] = "SELLSTOPLOSS"
+                    print(f"[{params['Symbol']}] SELL Stoploss executed")
+                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["ltp"],unique_key="1234")
+                    write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} SELL Stoploss {params["last_close"]}")
 
 
                     # REENTERY LOGIC
-                if params["Trade"] == "BUYSTOPLOSS":
-                    if params["last_close"] > min(prev_high,r1):
-                        print(f"[{params['Symbol']}]Price below both prev_day_high and r1, checking for buy re-entry")
-                        params["Trade"] = "BUY"
-                        write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY Reentry {params["last_close"]}")
+            if params["Trade"] == "BUYSTOPLOSS":
+                print(f"[{params['Symbol']}] REENTERY LOGIC checking for BUY")
+                if params["last_close"] > min(prev_high,r1):
+                    print(f"[{params['Symbol']}]Price below both prev_day_high and r1, checking for buy re-entry")
+                    params["Trade"] = "REENTERYCHECKED"
+                    print(f"[{params['Symbol']}] BUY Reentry condition check completed")
+                    write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY Reentry check completed {params["last_close"]}")
 
-                if params["Trade"] == "SELLSTOPLOSS":
-                    if params["last_close"] < max(prev_low,s1):
-                        print(f"[{params['Symbol']}]Price above both prev_day_low and s1, checking for sell re-entry")
-                        params["Trade"] = "SELL"
-                        write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} SELL Reentry {params["last_close"]}")
+
+            if params["Trade"] == "SELLSTOPLOSS":
+                print(f"[{params['Symbol']}] REENTERY LOGIC checking for SELL")
+                if params["last_close"] < max(prev_low,s1):
+                    print(f"[{params['Symbol']}]Price above both prev_day_low and s1, checking for sell re-entry")
+                    params["Trade"] = "REENTERYCHECKED"
+                    print(f"[{params['Symbol']}] SELL Reentry condition check completed")
+                    write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} SELL Reentry {params["last_close"]}")
 
                     
         

@@ -1,39 +1,36 @@
-Broker Order Response: [2025-05-08 11:51:01.872531]  SELL quantity: 1400 price: 631 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807905, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 11:51:01.872902] SELL @ HINDALCO  628.8
-Broker Order Response: [2025-05-08 11:51:02.891524]  BUY quantity: 350 price: 1596 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807906, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 11:51:02.891873] BUY @ HCLTECH  1589.5
-Broker Order Response: [2025-05-08 11:51:03.716073]  BUY quantity: 700 price: 1447 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807907, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 11:51:03.717311] BUY @ ICICIBANK  1444.8
-Broker Order Response: [2025-05-08 11:51:05.027745]  BUY quantity: 625 price: 1175 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807908, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 11:51:05.028240] BUY @ AXISBANK  1172.6
-Broker Order Response: [2025-05-08 11:51:05.857601]  SELL quantity: 125 price: 6919 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807909, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 11:51:05.858152] SELL @ APOLLOHOSP  6896.5
-Broker Order Response: [2025-05-08 11:51:06.671965]  BUY quantity: 600 price: 1518 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807910, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 11:51:06.744961] BUY @ TECHM  1515.1
-Broker Order Response: [2025-05-08 11:51:08.351260]  SELL quantity: 325 price: 1493 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807911, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 11:51:08.352855] SELL @ CIPLA  1487.0
-Broker Order Response: [2025-05-08 11:51:09.542525]  BUY quantity: 150 price: 4059 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807912, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 11:51:09.543141] BUY @ DMART  4047.9
-Broker Order Response: [2025-05-08 11:54:03.746960]  BUY quantity: 4825 price: 111 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807913, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 11:54:03.747814] BUY @ BANKINDIA  111.49
-Broker Order Response: [2025-05-08 12:06:14.835852]  SELL quantity: 300 price: 2365 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807922, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 12:06:14.836471] SELL @ HINDUNILVR  2354.3
-Broker Order Response: [2025-05-08 12:06:15.566589]  BUY quantity: 150 price: 3395 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807923, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 12:06:15.567085] BUY @ KEI  3391.6
-Broker Order Response: [2025-05-08 12:06:16.490742]  BUY quantity: 367 price: 1317 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807924, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 12:06:16.491818] BUY @ ASTRAL  1312.9
-Broker Order Response: [2025-05-08 12:09:12.250272]  SELL quantity: 1700 price: 603 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807925, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 12:09:12.251081] SELL @ LAURUSLABS  602.15
-Broker Order Response: [2025-05-08 12:09:17.066019]  BUY quantity: 150 price: 3364 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807926, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 12:09:17.066706] BUY @ LT  3349.6
-Broker Order Response: [2025-05-08 12:24:24.353637]  SELL quantity: 100 price: 4974 response: {'type': 'success', 'code': 's-orders-0001', 'description': 'API Order Id sent', 'result': {'AppOrderID': 1180807931, 'ClientID': '66BP01', 'OrderUniqueIdentifier': '454845'}}
-[2025-05-08 12:24:24.354590] SELL @ ALKEM  4973.5
-[2025-05-08 12:32:57.262420] SELL @ LAURUSLABS  601.95
-[2025-05-08 12:32:57.680975] SELL @ HINDALCO  625.5
-[2025-05-08 12:32:58.436982] BUY @ HCLTECH  1592.3
-[2025-05-08 12:32:59.015682] BUY @ ICICIBANK  1445.6
-[2025-05-08 12:33:00.518760] BUY @ BANKINDIA  111.54
-[2025-05-08 12:33:01.106132] BUY @ AXISBANK  1174.5
-[2025-05-08 12:33:01.695344] SELL @ APOLLOHOSP  6902.0
-[2025-05-08 12:33:01.905186] BUY @ LT  3355.1
-[2025-05-08 12:33:03.650176] SELL @ CIPLA  1481.1
+[2025-05-12 14:52:26.215104] ADANIPORTS buytargetvalue REACHED close: 1360.2, buytargetvalue: 1339.563216666667
+[2025-05-12 14:52:26.424003] INDUSINDBK selltargetvalue REACHED close: 787.6, selltargetvalue: 796.16455
+[2025-05-12 14:52:26.668855] INDHOTEL buytargetvalue REACHED close: 767.85, buytargetvalue: 753.1399083333333
+[2025-05-12 14:52:26.865489] TVSMOTOR buytargetvalue REACHED close: 2758.2, buytargetvalue: 2708.0119833333333
+[2025-05-12 14:52:27.060838] BUY @ AARTIIND  467.15
+[2025-05-12 14:52:27.235006] MARUTI buytargetvalue REACHED close: 12579.0, buytargetvalue: 12480.423333333332
+[2025-05-12 14:52:27.440610] LTF buytargetvalue REACHED close: 170.78, buytargetvalue: 166.21351833333333
+[2025-05-12 14:52:27.635527] DELHIVERY buytargetvalue REACHED close: 310.5, buytargetvalue: 307.71273333333335
+[2025-05-12 14:52:27.842016] SBICARD buytargetvalue REACHED close: 898.65, buytargetvalue: 893.2198333333334
+[2025-05-12 14:52:28.214873] CESC buytargetvalue REACHED close: 166.82, buytargetvalue: 160.62964499999998
+[2025-05-12 14:52:28.405370] DRREDDY buytargetvalue REACHED close: 1193.4, buytargetvalue: 1181.70885
+[2025-05-12 14:52:28.604169] SUNPHARMA selltargetvalue REACHED close: 1685.9, selltargetvalue: 1713.8565000000003
+[2025-05-12 14:52:28.804987] CUMMINSIND buytargetvalue REACHED close: 2869.6, buytargetvalue: 2793.369283333333
+[2025-05-12 14:52:29.009869] PFC buytargetvalue REACHED close: 411.35, buytargetvalue: 396.56828333333334
+[2025-05-12 14:52:29.459888] CHOLAFIN buytargetvalue REACHED close: 1577.7, buytargetvalue: 1549.4249
+[2025-05-12 14:52:29.695352] ADANIENT buytargetvalue REACHED close: 2418.5, buytargetvalue: 2291.3204333333333
+[2025-05-12 14:52:29.920181] OFSS buytargetvalue REACHED close: 8674.5, buytargetvalue: 8198.565333333334
+[2025-05-12 14:52:30.128228] TECHM buytargetvalue REACHED close: 1570.4, buytargetvalue: 1513.4762166666665
+[2025-05-12 14:52:31.578342] BSE buytargetvalue REACHED close: 6932.0, buytargetvalue: 6732.632
+[2025-05-12 14:52:31.785650] PIDILITIND buytargetvalue REACHED close: 3073.6, buytargetvalue: 3079.925933333334
+[2025-05-12 14:52:33.103102] NHPC buytargetvalue REACHED close: 83.3, buytargetvalue: 80.75626833333335
+[2025-05-12 14:52:33.311905] KOTAKBANK buytargetvalue REACHED close: 2135.2, buytargetvalue: 2143.2944833333336
+[2025-05-12 14:52:33.519494] POWERGRID buytargetvalue REACHED close: 308.35, buytargetvalue: 306.0802166666667
+[2025-05-12 14:52:33.733606] SHRIRAMFIN buytargetvalue REACHED close: 646.1, buytargetvalue: 619.3901500000001
+[2025-05-12 14:52:33.930082] SHREECEM buytargetvalue REACHED close: 30110.0, buytargetvalue: 30011.653333333335
+[2025-05-12 14:52:34.144743] INDIANB buytargetvalue REACHED close: 571.0, buytargetvalue: 567.9159
+[2025-05-12 14:52:34.355098] DABUR buytargetvalue REACHED close: 473.6, buytargetvalue: 471.3475416666667
+[2025-05-12 14:52:34.570967] NTPC buytargetvalue REACHED close: 348.0, buytargetvalue: 342.67857499999997
+[2025-05-12 14:52:34.794736] INOXWIND buytargetvalue REACHED close: 169.04, buytargetvalue: 161.8723566666667
+[2025-05-12 14:52:35.026494] NESTLEIND buytargetvalue REACHED close: 2371.0, buytargetvalue: 2378.143666666667
+[2025-05-12 14:52:35.243078] HDFCLIFE buytargetvalue REACHED close: 734.3, buytargetvalue: 721.2392
+[2025-05-12 14:52:35.435719] BAJAJ-AUTO buytargetvalue REACHED close: 8017.0, buytargetvalue: 7875.227083333333
+[2025-05-12 14:52:35.684506] ABFRL buytargetvalue REACHED close: 267.75, buytargetvalue: 261.3359333333333
+[2025-05-12 14:52:35.932506] PAYTM buytargetvalue REACHED close: 864.7, buytargetvalue: 849.3917583333334
+[2025-05-12 15:13:40.817521] SELL @ GLENMARK  1382.1
+[2025-05-12 15:17:48.738166] BHARTIARTL buytargetvalue REACHED close: 1868.1, buytargetvalue: 1885.6567

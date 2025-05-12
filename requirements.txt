@@ -8,3 +8,9 @@ requests==2.25.1
 six==1.15.0
 urllib3==1.26.4
 websocket-client==0.57.0
+pandas>=2.0.0
+polars>=0.20.0
+polars-talib>=0.1.0
+selenium>=4.15.0
+pyotp>=2.9.0
+xtspythonclientapisdk>=1.0.0
