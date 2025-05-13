@@ -11,12 +11,22 @@ import sys
 sys.path.append('.')
 # Now import the SDK
 from xtspythonclientapisdk.Connect import XTSConnect
-instrument_id_list=[]
+Future_instrument_id_list=[]
+Equity_instrument_id_list=[]
 result_dict = {}
 xts_marketdata = None
 xt=None
 
-
+def delete_file_contents(file_name):
+    try:
+        # Open the file in write mode, which truncates it (deletes contents)
+        with open(file_name, 'w') as file:
+            file.truncate(0)
+        print(f"Contents of {file_name} have been deleted.")
+    except FileNotFoundError:
+        print(f"File {file_name} not found.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
 def interactivelogin():
     from selenium import webdriver
@@ -115,6 +125,7 @@ def write_to_order_logs(message):
 
 def get_user_settings():
     global result_dict, instrument_id_list
+    delete_file_contents("OrderLog.txt")
     try:
         csv_path = 'TradeSettings.csv'
         df = pd.read_csv(csv_path)
@@ -179,20 +190,27 @@ def get_user_settings():
                 "NSECMexchangeInstrumentID": NSECMinstrument_id,"PrevOpen": None,"PrevHigh": None,"OrderQuantity":None,
                 "PrevLow": None,"PrevClose": None,"ma1Val": None,"ma2Val": None,"RsiVal":None,"last_run_time": None,
                 "PvtPoint": None,"BottomRange": None,"TopRange": None,"R1": None,"R2": None,"R3": None,"last_close":None,
-                "S1": None,"S2": None,"S3": None,"AllowedDiff":None,"ActualDiff":None,"Trade":None,"TargetExecuted":False,"ltp":None
+                "S1": None,"S2": None,"S3": None,"AllowedDiff":None,"ActualDiff":None,"Trade":None,"TargetExecuted":False,"EQltp":None,"Futltp":None,"buytargetvalue":None,
+                "selltargetvalue":None
             }
 
             result_dict[symbol_dict["unique_key"]] = symbol_dict
 
 
+            if NSECMinstrument_id:
+                Equity_instrument_id_list.append({
+                    "exchangeSegment": 1,
+                    "exchangeInstrumentID": NSECMinstrument_id
+                })
+
             if NSEFOinstrument_id:
-                instrument_id_list.append({
+                Future_instrument_id_list.append({
                     "exchangeSegment": 2,
                     "exchangeInstrumentID": NSEFOinstrument_id
                 })
 
         print("result_dict: ", result_dict)
-        print("instrument_id_list: ", instrument_id_list)
+      
 
     except Exception as e:
         print("Error happened in fetching symbol", str(e))
@@ -368,26 +386,25 @@ def chunk_instruments(instrument_list, chunk_size=50):
     for i in range(0, len(instrument_list), chunk_size):
         yield instrument_list[i:i + chunk_size]
 
-    
 
 
-def fetch_MarketQuote(xts_marketdata):
-    global instrument_id_list, result_dict
+def Equity_MarketQuote(xts_marketdata):
+    global Equity_instrument_id_list, result_dict
 
-    if not instrument_id_list:
+    if not Equity_instrument_id_list:
         print("Instrument list is empty, skipping quote fetch.")
         return
 
     # Mapping: InstrumentID → Symbol
     symbol_by_id = {
-    params.get("NSEFOexchangeInstrumentID"): (symbol, params)
+    params.get("NSECMexchangeInstrumentID"): (symbol, params)
     for symbol, params in result_dict.items()
-    if params.get("NSEFOexchangeInstrumentID") and params.get("TakeTrade") == True
+    if params.get("NSECMexchangeInstrumentID") and params.get("TakeTrade") == True
         }
 
 
 
-    for chunk in chunk_instruments(instrument_id_list, 50):
+    for chunk in chunk_instruments(Equity_instrument_id_list, 50):
         try:
             response = xts_marketdata.get_quote(
                 Instruments=chunk,
@@ -406,8 +423,58 @@ def fetch_MarketQuote(xts_marketdata):
                         if instrument_id in symbol_by_id:
                             symbol, params = symbol_by_id[instrument_id]
                             ltp = item.get("LastTradedPrice")
-                            params["ltp"] = int(ltp)  # ✅ Now valid and consistent
-                            print(f"[params[ltp]] {symbol}: {params["ltp"]}")
+                            params["EQltp"] = int(ltp)  # ✅ Now valid and consistent
+                            print(f"[params[ltp]] {symbol}: {params["EQltp"]}")
+
+                    except Exception as inner_err:
+                        print(f"[WARN] Skipping malformed quote: {inner_err}")
+                        continue
+            else:
+                print(f"[ERROR] Unexpected quote response: {response}")
+
+        except Exception as e:
+            print(f"[ERROR] While fetching quote chunk: {e}")
+            traceback.print_exc()
+
+
+
+def Future_MarketQuote(xts_marketdata):
+    global Future_instrument_id_list, result_dict
+
+    if not Future_instrument_id_list:
+        print("Instrument list is empty, skipping quote fetch.")
+        return
+
+    # Mapping: InstrumentID → Symbol
+    symbol_by_id = {
+    params.get("NSEFOexchangeInstrumentID"): (symbol, params)
+    for symbol, params in result_dict.items()
+    if params.get("NSEFOexchangeInstrumentID") and params.get("TakeTrade") == True
+        }
+
+
+
+    for chunk in chunk_instruments(Future_instrument_id_list, 50):
+        try:
+            response = xts_marketdata.get_quote(
+                Instruments=chunk,
+                xtsMessageCode=1501,
+                publishFormat='JSON'
+            )
+
+            if response and response.get("type") == "success":
+                quote_strings = response["result"].get("listQuotes", [])
+
+                for quote_str in quote_strings:
+                    try:
+                        item = json.loads(quote_str)
+                        instrument_id = item.get("ExchangeInstrumentID")
+
+                        if instrument_id in symbol_by_id:
+                            symbol, params = symbol_by_id[instrument_id]
+                            ltp = item.get("LastTradedPrice")
+                            params["Futltp"] = int(ltp)  # ✅ Now valid and consistent
+                            print(f"[params[ltp]] {symbol}: {params["Futltp"]}")
 
                     except Exception as inner_err:
                         print(f"[WARN] Skipping malformed quote: {inner_err}")
@@ -502,6 +569,12 @@ def main_strategy():
                     params["S1"] = (2 * pivot) - h
                     params["S2"] = pivot - (h - l)
                     params["S3"] = l - 2 * (h - pivot)
+                    target_buffer = params["TargetBuffer"] 
+                    params["buytargetvalue"] = params["R2"] * params["TargetBuffer"]*0.01 
+                    params["buytargetvalue"] = params["R2"]-params["buytargetvalue"]
+
+                    params["selltargetvalue"] = params["S2"] * params["TargetBuffer"]*0.01 
+                    params["selltargetvalue"] = params["S2"]+params["selltargetvalue"]
 
                     endtime=datetime.datetime.now()
                     latency=endtime-start_time
@@ -517,8 +590,8 @@ def main_strategy():
             # last_run = params.get("last_run_time")
             # if last_run and (now - last_run).total_seconds() < timeframe:
             #     continue
-
-        fetch_MarketQuote(xts_marketdata)   
+        Equity_MarketQuote(xts_marketdata)
+        Future_MarketQuote(xts_marketdata) 
         fetch_start = time.time()
 
         
@@ -527,7 +600,9 @@ def main_strategy():
                 continue
 
             if params.get("TakeTrade") != True:
-                continue    
+                continue
+
+            print(f"[{params['Symbol']}] {params['TakeTrade']}")    
 
             
 
@@ -604,12 +679,7 @@ def main_strategy():
             s1 = params["S1"]
             s2 = params["S2"]
 
-            target_buffer = params["TargetBuffer"] 
-            buytargetvalue = r2 * target_buffer*0.01 
-            buytargetvalue = r2-buytargetvalue
-
-            selltargetvalue = s2 * target_buffer*0.01 
-            selltargetvalue = s2+selltargetvalue
+            
             params["OrderQuantity"]= int(params["Quantity"]*params["LotSize"])
 
 
@@ -625,11 +695,12 @@ def main_strategy():
                     Resistance 2 (R2): {r2}
                     Support 1 (S1): {s1}
                     Support 2 (S2): {s2}
-                    Target Buffer: {target_buffer}
-                    Buy Target Value: {buytargetvalue}
-                    Sell Target Value: {selltargetvalue}
+                    Target Buffer: {params["TargetBuffer"]}
+                    Buy Target Value: {params["buytargetvalue"]}
+                    Sell Target Value: {params["selltargetvalue"]}
                     Last Close: {params["last_close"]}
-                    LTP: {params['ltp']}
+                    EQltp: {params['EQltp']}
+                    Futltp: {params['Futltp']}
                     TargetExecuted: {params["TargetExecuted"]}
                     Trade: {params["Trade"]}
                     TakeTrade: {params["TakeTrade"]}
@@ -638,30 +709,30 @@ def main_strategy():
 
 
                 # Target
-            if(params["ltp"] is not None and 
-                    (params['ltp']>=buytargetvalue or params["last_close"]>=buytargetvalue ) and 
+            if(params["EQltp"] is not None and 
+                    (params['EQltp']>=params["buytargetvalue"] or params["last_close"]>=params["buytargetvalue"] ) and 
                     params["TargetExecuted"] == False):
-                print(f"[{params['Symbol']}] price reached buytargetvalue {buytargetvalue}")
+                print(f"[{params['Symbol']}] price: {params['EQltp']} or {params['last_close']} reached Buy Target Value= {params["buytargetvalue"]}")
                 params["TargetExecuted"] = True
-                write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} buytargetvalue REACHED close: {params["last_close"]}, buytargetvalue: {buytargetvalue}")
+                write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} buytargetvalue REACHED close: {params["last_close"]}, buytargetvalue: {params["buytargetvalue"]}")
                 if params["Trade"] == "BUY":
                     print(f"[{params['Symbol']}] Buy Target  executed")
                     params["Trade"] = "TAKENOMORETRADES"
-                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",price=params["ltp"],unique_key="1234")
-                    write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY TARGET REACHED clos: {params["last_close"]}, buytargetvalue: {buytargetvalue}")
+                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",price=params["Futltp"],unique_key="1234")
+                    write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY TARGET REACHED close: {params["last_close"]}, buytargetvalue: {params["buytargetvalue"]}")
 
-            if (params["ltp"] is not None and
-                    (params['ltp']<=selltargetvalue or params["last_close"]<=selltargetvalue) and 
+            if (params["EQltp"] is not None and
+                    (params['EQltp']<=params["selltargetvalue"] or params["last_close"]<=params["selltargetvalue"]) and 
                     params["TargetExecuted"] == False):
-                print(f"[{params['Symbol']}] price reached selltargetvalue")
+                print(f"[{params['Symbol']}] price: {params['EQltp']} or {params['last_close']} reached Sell Target Value= {params["selltargetvalue"]}")
                 params["TargetExecuted"] = True
-                write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} selltargetvalue REACHED close: {params["last_close"]}, selltargetvalue: {selltargetvalue}")
+                write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} selltargetvalue REACHED close: {params["last_close"]}, selltargetvalue: {params["selltargetvalue"] }")
                 if params["Trade"] == "SELL":
                     print(f"[{params['Symbol']}] Sell Target  executed")
                     params["Trade"] = "TAKENOMORETRADES"
-                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["ltp"],unique_key="1234")
+                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["Futltp"],unique_key="1234")
                     
-                    write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} SELL TARGET REACHED close: {params["last_close"]}, selltargetvalue: {selltargetvalue}")
+                    write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} SELL TARGET REACHED close: {params["last_close"]}, selltargetvalue: {params["selltargetvalue"]}")
                 
                 
                 
@@ -675,7 +746,7 @@ def main_strategy():
                     print(f"[{params['Symbol']}] Buy condition met")
                     params["Trade"] = "BUY"
                     print(f"[{params['Symbol']}] BUY @ {params['Symbol']}  {params["last_close"]}")
-                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["ltp"],unique_key="1234")
+                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["Futltp"],unique_key="1234")
                     write_to_order_logs(f"[{datetime.datetime.now()}] BUY @ {params['Symbol']}  {params["last_close"]}")
 
                     # sell condition
@@ -683,7 +754,7 @@ def main_strategy():
                     params["last_close"] < s1 and params["last_close"]<prev_low and ema1<ema2) and params["Trade"] == None:
                     print(f"[{params['Symbol']}] Sell condition met")
                     params["Trade"] = "SELL"
-                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",price=params["ltp"],unique_key="1234")
+                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",price=params["Futltp"],unique_key="1234")
                     write_to_order_logs(f"[{datetime.datetime.now()}] SELL @ {params['Symbol']}  {params["last_close"]}")
 
                 # REENTRY TRIGGERED LOGIC
@@ -695,7 +766,7 @@ def main_strategy():
                         print(f"[{params['Symbol']}] Buy re-entry condition met")
                         params["Trade"] = "BUY"
                         print(f"[{params['Symbol']}] BUY re-entry condition met")
-                        # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["ltp"],unique_key="1234")
+                        # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["Futltp"],unique_key="1234")
                         write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY re-entry {params['last_close']}")
                     
                 if params["Trade"] == "REENTERYCHECKED":
@@ -704,7 +775,7 @@ def main_strategy():
                         print(f"[{params['Symbol']}] Sell re-entry condition met")
                         params["Trade"] = "SELL"
                         print(f"[{params['Symbol']}] SELL re-entry condition met")
-                        # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",price=params["ltp"],unique_key="1234")
+                        # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",price=params["Futltp"],unique_key="1234")
                         write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} SELL re-entry {params["last_close"]}")
 
 
@@ -717,7 +788,7 @@ def main_strategy():
                     params["Trade"] = "BUYSTOPLOSS"
                     print(f"[{params['Symbol']}] BUY Stoploss executed")    
                     # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="SELL",
-                    #             price=params["ltp"],unique_key="1234")  
+                    #             price=params["Futltp"],unique_key="1234")  
                     write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} BUY Stoploss {params["last_close"]}")
 
 
@@ -727,7 +798,7 @@ def main_strategy():
                     print(f"[{params['Symbol']}]Sell Stoploss executed")
                     params["Trade"] = "SELLSTOPLOSS"
                     print(f"[{params['Symbol']}] SELL Stoploss executed")
-                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["ltp"],unique_key="1234")
+                    # place_order(nfo_ins_id=params["NSEFOexchangeInstrumentID"],order_quantity=params["OrderQuantity"],order_side="BUY",price=params["Futltp"],unique_key="1234")
                     write_to_order_logs(f"[{datetime.datetime.now()}] {params['Symbol']} SELL Stoploss {params["last_close"]}")
 
 
@@ -785,7 +856,10 @@ def main_strategy():
                     "R3": params["R3"],
                     "S1": params["S1"],
                     "S2": params["S2"],
-                    "S3": params["S3"]
+                    "S3": params["S3"],
+                    "buytargetvalue": params["buytargetvalue"],
+                    "selltargetvalue": params["selltargetvalue"],
+                    "TargetBuffer": params["TargetBuffer"]
                 })
 
             if allowed_trades:
